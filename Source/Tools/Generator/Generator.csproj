@@ -68,7 +68,6 @@
     <Compile Include="Composition\CompositingEngine.cs" />
     <Compile Include="Composition\CompositionFlags.cs" />
     <Compile Include="Configuration.cs" />
-    <Compile Include="Extensions.cs" />
     <Compile Include="Formatter\ArrayFormatter.cs" />
     <Compile Include="Formatter\DirectFormatter.cs" />
     <Compile Include="Formatter\EnumerationFormatter.cs" />
