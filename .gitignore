@@ -1,0 +1,5 @@
+*.suo
+*.csproj.user
+bin/
+obj/
+Generated/
