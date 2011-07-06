@@ -100,15 +100,16 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="DXGI.Generator.cfg" />
     <None Include="DXGI.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="DXGI.xml" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>"$(SolutionDir)\Source\Tools\Generator\bin\$(ConfigurationName)\SlimDX.Generator.exe" "$(ProjectDir)\DXGI.Generator.cfg"</PreBuildEvent>
+    <PreBuildEvent>"$(SolutionDir)\Source\Tools\Generator\bin\$(ConfigurationName)\SlimDX.Generator.exe" "$(ProjectDir)\DXGI.xml"</PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PostBuildEvent>"$(SolutionDir)\Source\Tools\Combiner\bin\$(ConfigurationName)\SlimDX.Combiner.exe" "$(ProjectDir)\Generated\$(TargetName).Trampoline.dll" "$(TargetPath)" $(TargetName).Trampoline</PostBuildEvent>

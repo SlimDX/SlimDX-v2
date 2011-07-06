@@ -67,7 +67,7 @@
     </Compile>
     <Compile Include="Composition\CompositingEngine.cs" />
     <Compile Include="Composition\CompositionFlags.cs" />
-    <Compile Include="ConfigFile.cs" />
+    <Compile Include="Configuration.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Formatter\ArrayFormatter.cs" />
     <Compile Include="Formatter\DirectFormatter.cs" />
@@ -116,9 +116,6 @@
     <Compile Include="Trampoline\TrampolineAssemblyBuilder.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Base.cfg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <Content Include="Templates\Functions\Function.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

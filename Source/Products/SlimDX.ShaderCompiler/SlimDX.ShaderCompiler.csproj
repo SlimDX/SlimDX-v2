@@ -61,10 +61,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="ShaderCompiler.Generator.cfg" />
     <None Include="ShaderCompiler.json" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="ShaderCompiler.xml" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SlimDX\SlimDX.csproj">
       <Project>{A774A428-009F-4E4D-ABF2-F7E181DAA2E3}</Project>
@@ -73,7 +74,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>"$(SolutionDir)\Source\Tools\Generator\bin\$(ConfigurationName)\SlimDX.Generator.exe" "$(ProjectDir)\ShaderCompiler.Generator.cfg"</PreBuildEvent>
+    <PreBuildEvent>"$(SolutionDir)\Source\Tools\Generator\bin\$(ConfigurationName)\SlimDX.Generator.exe" "$(ProjectDir)\ShaderCompiler.xml"</PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PostBuildEvent>"$(SolutionDir)\Source\Tools\Combiner\bin\$(ConfigurationName)\SlimDX.Combiner.exe" "$(ProjectDir)\Generated\$(TargetName).Trampoline.dll" "$(TargetPath)" $(TargetName).Trampoline</PostBuildEvent>

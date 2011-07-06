@@ -41,11 +41,11 @@ namespace SlimDX.Generator
 			private set;
 		}
 
-		public Preprocessor(ConfigFile options)
+		public Preprocessor(Configuration options)
 		{
 			// primary source file is the one that wave is run against 
 			// to produce a single preprocessed monolithic header
-			primarySource = Environment.ExpandEnvironmentVariables(options.GetOption("Options", "PrimarySource"));
+			primarySource = Environment.ExpandEnvironmentVariables(options.PrimaryHeader);
 			wavePath = "wave.exe";
 
 			// -E indicates default naming scheme for output file (e.g. input.i)
@@ -57,13 +57,13 @@ namespace SlimDX.Generator
 			// final argument is the primary header file to run against
 			var builder = new StringBuilder("-E -m macros.txt --variadics ");
 
-			foreach (var path in options.GetOptions("IncludePaths"))
+			foreach (var path in options.IncludePaths)
 				builder.Append("-S \"").Append(Environment.ExpandEnvironmentVariables(path)).Append("\" ");
 
-			foreach (var symbol in options.GetOptions("Symbols"))
+			foreach (var symbol in options.DefineSymbols)
 				builder.Append("-D ").Append(symbol).Append(" ");
 
-			foreach (var symbol in options.GetOptions("IgnoreSymbols"))
+			foreach (var symbol in options.IgnoreSymbols)
 				builder.Append("-r ").Append(symbol).Append(" ");
 
 			Source = Path.GetFileName(primarySource);

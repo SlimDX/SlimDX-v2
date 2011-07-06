@@ -23,13 +23,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json.Linq;
+using System.Reflection;
 
 namespace SlimDX.Generator
 {
 	class Program
 	{
-		#region Implementation
-
 		/// <summary>
 		/// The application's entry point.
 		/// </summary>
@@ -39,16 +38,15 @@ namespace SlimDX.Generator
 			if (arguments.Length == 0)
 				throw new InvalidOperationException("Missing configuration file path.");
 
-			var configuration = new ConfigFile(arguments[0]);
+			var configuration = new Configuration(arguments[0]);
 
 			var searchPaths = new HashSet<string>();
 			var json = RunParser(configuration);
-			foreach (var layer in configuration.GetOptions("JsonLayers"))
+			foreach (var layer in configuration.Layers)
 			{
 				JObject current = null;
-				var path = layer.RootPath(configuration.ConfigurationDirectory);
-                current = JObject.Parse(File.ReadAllText(path));
-				searchPaths.Add(Path.GetDirectoryName(Path.GetFullPath(path)));
+                current = JObject.Parse(File.ReadAllText(layer));
+				searchPaths.Add(Path.GetDirectoryName(Path.GetFullPath(layer)));
 
 				// combine the current layer with the base
 				if (json == null)
@@ -56,8 +54,8 @@ namespace SlimDX.Generator
 				else
 					CompositingEngine.Compose(json, current);
 			}
-            
-			var generatedModelFile = configuration.GetOption("Options", "GeneratedModelPath").RootPath(configuration.ConfigurationDirectory);
+
+            var generatedModelFile = Path.Combine(configuration.GeneratorOutputPath, configuration.ApiName + ".json"); 
 			File.WriteAllText(generatedModelFile, json.ToString());
 
 			// run the generator on the composed Json model
@@ -65,7 +63,7 @@ namespace SlimDX.Generator
 		}
 
 
-		static JObject RunParser(ConfigFile configuration)
+		static JObject RunParser(Configuration configuration)
 		{
 			// run boost::wave on the primary source file to get a preprocessed file and a list of macros
 			var preprocessor = new Preprocessor(configuration);
@@ -75,7 +73,7 @@ namespace SlimDX.Generator
 			// this includes dropping any source that is not from the given primary or ancillary
 			// sources, which is indicated in the preprocessed file by #line directives
 			var source = preprocessor.Source;
-			var rawSources = configuration.GetOptions("AncillarySources").Concat(new[] { Path.Combine(Directory.GetCurrentDirectory(), source) });
+			var rawSources = configuration.AdditionalHeaders.Concat(new[] { Path.Combine(Directory.GetCurrentDirectory(), source) });
 			var relevantSources = new List<string>();
 			foreach (string s in rawSources)
 				relevantSources.Add(Environment.ExpandEnvironmentVariables(s));
@@ -84,7 +82,7 @@ namespace SlimDX.Generator
 			Preprocessor.PostTransform(source, new HashSet<string>(relevantSources));
 
 			// run the parser on the preprocessed file to generate a model of the file in memory
-			var grammarFile = configuration.GetOption("Options", "Grammar").RootPath(configuration.ConfigurationDirectory);
+            var grammarFile = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "header_grammar.cgt");
 			var parser = new HeaderParser(grammarFile);
 			var root = parser.Parse(source).ToXml();
 			var json = ModelXml.Transform(root);
@@ -95,11 +93,11 @@ namespace SlimDX.Generator
 			return json;
 		}
 
-		static void RunGenerator(JObject json, ConfigFile configuration, IEnumerable<string> searchPaths)
+		static void RunGenerator(JObject json, Configuration configuration, IEnumerable<string> searchPaths)
 		{
 			var api = ModelJson.Parse(json, searchPaths);
 
-			var templateDirectory = Path.Combine(configuration.GeneratorDirectory, @"Templates");
+            var templateDirectory = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Templates");
 			var templateEngine = new TemplateEngine(new[] { templateDirectory });
 
 			templateEngine.RegisterCallback("ApiNamespace", (e, s) => api.Name);
@@ -107,7 +105,7 @@ namespace SlimDX.Generator
 			templateEngine.RegisterCallback("ApiDll", (e, s) => TemplateCallbacks.GetApiDllName(api));
 			templateEngine.RegisterCallbacks(typeof(TemplateCallbacks));
 
-			var outputDirectory = configuration.GetOption("Options", "OutputPath").RootPath(configuration.ConfigurationDirectory);
+            var outputDirectory = configuration.GeneratorOutputPath;
 			if (!Directory.Exists(outputDirectory))
 				Directory.CreateDirectory(outputDirectory);
 
@@ -193,7 +191,5 @@ namespace SlimDX.Generator
 				File.WriteAllText(outputPath, templateEngine.ApplyByName(templateName, item));
 			}
 		}
-
-		#endregion
 	}
 }
