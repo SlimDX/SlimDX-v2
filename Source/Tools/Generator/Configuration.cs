@@ -39,9 +39,9 @@ namespace SlimDX.Generator
             DefineSymbols = DeserializeValueArray(parser.Element("define-symbols"));
             IgnoreSymbols = DeserializeValueArray(parser.Element("ignore-symbols"));
 
-            var generator = xml.Root.Element("parser-configuration");
+            var generator = xml.Root.Element("generator-configuration");
             ApiName = generator.Attribute("api").Value;
-            GeneratorOutputPath = generator.Attribute("output-path").Value;
+            GeneratorOutputPath = Path.Combine(path, generator.Attribute("output-path").Value);
             Layers = DeserializePathArray(generator.Element("combine"), path);
         }
 
