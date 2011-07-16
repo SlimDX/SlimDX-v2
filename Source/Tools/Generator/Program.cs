@@ -22,8 +22,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Newtonsoft.Json.Linq;
 using System.Reflection;
+using Newtonsoft.Json.Linq;
 
 namespace SlimDX.Generator
 {
@@ -59,7 +59,8 @@ namespace SlimDX.Generator
 			File.WriteAllText(generatedModelFile, json.ToString());
 
 			// run the generator on the composed Json model
-			RunGenerator(json, configuration, searchPaths);
+            var api = ModelJson.Parse(json, searchPaths);
+			RunGenerator(api, configuration);
 		}
 
 
@@ -93,10 +94,8 @@ namespace SlimDX.Generator
 			return json;
 		}
 
-		static void RunGenerator(JObject json, Configuration configuration, IEnumerable<string> searchPaths)
+		static void RunGenerator(ApiModel api, Configuration configuration)
 		{
-			var api = ModelJson.Parse(json, searchPaths);
-
             var templateDirectory = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Templates");
 			var templateEngine = new TemplateEngine(new[] { templateDirectory });
 
